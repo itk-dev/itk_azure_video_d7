@@ -1,0 +1,54 @@
+<?php
+/**
+ * @file
+ * The Azure Video field.
+ */
+
+/**
+ * Implements hook_field_info().
+ */
+function itk_azure_video_d7_field_info() {
+  return array(
+    'itk_azure_video_d7_url' => array(
+      'label' => t('Azure Video'),
+      'description' => t('Url to the Azure Video manifest.'),
+      'default_widget' => 'itk_azure_video_d7_widget',
+      'default_formatter' => 'itk_azure_video_d7_formatter',
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_validate().
+ */
+function itk_azure_video_d7_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
+  foreach ($items as $delta => $item) {
+    if (!empty($item['url'])) {
+      if (!valid_url($item['url'])) {
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'itk_azure_video_d7_url_invalid',
+          'message' => t('The url must be valid'),
+        );
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_field_is_empty().
+ */
+function field_example_field_is_empty($item, $field) {
+  return empty($item['url']);
+}
+
+/**
+ * Implements hook_field_formatter_info().
+ */
+function field_example_field_formatter_info() {
+  return array(
+    'itk_azure_video_d7_formatter' => array(
+      'label' => t('Azure Video url formatter'),
+      'field types' => array('itk_azure_video_d7_url'),
+    ),
+  );
+}

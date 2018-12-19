@@ -1,0 +1,5 @@
+name = ITK Azure Video
+description = Provides an Azure Video field
+package = ITK
+core = 7.x
+
