@@ -37,18 +37,110 @@ function itk_azure_video_d7_field_validate($entity_type, $entity, $field, $insta
 /**
  * Implements hook_field_is_empty().
  */
-function field_example_field_is_empty($item, $field) {
+function itk_azure_video_d7_field_is_empty($item, $field) {
   return empty($item['url']);
 }
 
 /**
  * Implements hook_field_formatter_info().
  */
-function field_example_field_formatter_info() {
+function itk_azure_video_d7_field_formatter_info() {
   return array(
     'itk_azure_video_d7_formatter' => array(
-      'label' => t('Azure Video url formatter'),
+      'label' => t('Azure Video'),
       'field types' => array('itk_azure_video_d7_url'),
     ),
   );
+}
+
+/**
+ * Implements hook_field_formatter_view().
+ */
+function itk_azure_video_d7_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
+  $element = array();
+
+  switch ($display['type']) {
+    case 'itk_azure_video_d7_formatter':
+      $element = [];
+      $settings = [];
+      $settingsString = implode(' ', $settings);
+
+      foreach ($items as $delta => $item) {
+        $source = $item['url'];
+        $pathInfo = pathinfo($source);
+
+        if (!isset($pathInfo['extension']) ||  $pathInfo['extension'] == '') {
+          $source .= '(format=mpd-time-csf)';
+        }
+
+        $classes = ['itk-azure-video'];
+        $classes[] = 'itk-azure-video-responsive';
+        $classesString = implode(' ', $classes);
+
+        $markup =
+          '<div class="'.$classesString.'">' .
+          '<video data-dashjs-player disablepictureinpicture controls '.$settingsString.' src="'.$source.'"></video>' .
+          '</div>';
+
+        $element[$delta] = [
+          '#markup' => $markup,
+        ];
+      }
+
+      $element['#attached']['library'][] = array('itk_azure_video_d7', 'itk_azure_video');
+
+      break;
+  }
+
+  return $element;
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function itk_azure_video_d7_field_widget_info() {
+  return array(
+    'itk_azure_video_d7_widget' => array(
+      'label' => t('Url to manifest file'),
+      'field types' => array('itk_azure_video_d7_url'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function itk_azure_video_d7_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
+  $value = isset($items[$delta]['url']) ? $items[$delta]['url'] : '';
+
+  $widget = $element;
+  $widget['#delta'] = $delta;
+
+  switch ($instance['widget']['type']) {
+    case 'itk_azure_video_d7_widget':
+      $widget += array(
+        '#type' => 'textfield',
+        '#default_value' => $value,
+        '#size' => 30,
+        '#maxlength' => 2048,
+      );
+  }
+
+  $element['url'] = $widget;
+  return $element;
+}
+
+function itk_azure_video_d7_library() {
+  $libraries['itk_azure_video'] = array(
+    'title' => 'Azure Video',
+    'version' => '1.0',
+    'js' => array(
+      drupal_get_path('module', 'itk_azure_video_d7') . '/js/lib/dash/dash.all.min.js' => array(),
+    ),
+    'css' => array(
+      drupal_get_path('module', 'itk_azure_video_d7') . '/css/itk_azure_video.css' => array(),
+    )
+  );
+
+  return $libraries;
 }
