@@ -1,0 +1,24 @@
+<?php
+/**
+ * @file
+ * Install, update, and uninstall functions for the itk_azure_video_d7 module.
+ */
+
+/**
+ * Implements hook_field_schema().
+ *
+ * Defines the database schema of the field, using the format used by the
+ * Schema API.
+ */
+function itk_azure_video_d7_field_schema($field) {
+  $columns = array(
+    'url' => array('type' => 'varchar', 'length' => 2048, 'not null' => FALSE),
+  );
+  $indexes = array(
+    'url' => array('url'),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => $indexes,
+  );
+}
